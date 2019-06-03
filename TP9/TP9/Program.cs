@@ -54,6 +54,8 @@ namespace TP9
             Console.WriteLine("{0}", cadena);
             File.WriteAllText(dir + nameText, cadena);
 
+            ConversorDeMorse.MorseASonido(dir + nameMorse);
+
         }
 
     }
