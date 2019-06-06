@@ -37,8 +37,8 @@ namespace TP9
         public static void convertir()
         {
             string dir = SoporteParaConfiguracion.LeerConfiguracion() + @"Morse\";
-            string nameMorse = "morse_" + DateTime.Today.ToString("dd_MM_yyyy") +".txt";
-            string nameText = "text_" + DateTime.Today.ToString("dd_MM_yyyy") + ".txt";
+            string nameMorse = "morse_" + DateTime.Now.ToString("yyyy-MM-dd__HH-mm-ss") +".txt";
+            string nameText = "text_" + DateTime.Now.ToString("yyyy-MM-dd__HH-mm-ss") + ".txt";
          
             Directory.CreateDirectory(dir);
 

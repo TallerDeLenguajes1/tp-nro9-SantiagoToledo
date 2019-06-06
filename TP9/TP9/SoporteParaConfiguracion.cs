@@ -109,34 +109,62 @@ namespace Helpers
 
         public static void MorseASonido(string dirArchivo)
         {
+
             string dirAudio = SoporteParaConfiguracion.LeerConfiguracion();
             string nameAudio;
             nameAudio = Path.GetFileName(dirArchivo);
             nameAudio = Path.ChangeExtension(nameAudio, ".mp3");
 
-            byte[] puntoByte, rayaByte, salida = new byte[32768];
+            byte[] puntoByte, rayaByte, silencioByte;
 
-            FileStream puntoStream = new FileStream(dirAudio + "punto.mp3", FileMode.Open);
-            FileStream rayaStream = new FileStream(dirAudio + "raya.mp3", FileMode.Open);
-            FileStream audioStream = new FileStream(dirAudio + nameAudio, FileMode.Create);
 
-            puntoByte = LectorCompletoDeBinario(puntoStream);
-            rayaByte = LectorCompletoDeBinario(rayaStream);
-
-            string morse = File.ReadAllText(dirArchivo);
-            
-            foreach(char c in morse)
+            using (FileStream silencioStream = new FileStream(dirAudio + "silencio.mp3", FileMode.Open))
             {
-                if(c == '.')
-                {
-                    audioStream.Write(puntoByte, 0, puntoByte.Length);
-                }
-                if(c == '-')
-                {
-                    audioStream.Write(rayaByte, 0, rayaByte.Length);
-                }
+                silencioByte = LectorCompletoDeBinario(silencioStream);
+                Array.Resize(ref silencioByte, silencioByte.Length - 128);
+                silencioStream.Close();
             }
-            audioStream.Close();
+
+            using (FileStream puntoStream = new FileStream(dirAudio + "punto.mp3", FileMode.Open))
+            {
+                puntoByte = LectorCompletoDeBinario(puntoStream);
+                Array.Resize(ref puntoByte, puntoByte.Length - 128);
+                puntoStream.Close();
+            }
+            using(FileStream rayaStream = new FileStream(dirAudio + "raya.mp3", FileMode.Open))
+            {
+                rayaByte = LectorCompletoDeBinario(rayaStream);
+                Array.Resize(ref rayaByte, rayaByte.Length - 128);
+                rayaStream.Close();
+            }
+            using(FileStream audioStream = new FileStream(dirAudio + nameAudio, FileMode.Create))
+            {
+
+                string morse = File.ReadAllText(dirArchivo);
+            
+                foreach(char c in morse)
+                {
+                    if(c == '.')
+                    {
+                        audioStream.Write(puntoByte, 0, puntoByte.Length);
+                    }
+                    if(c == '-')
+                    {
+                        audioStream.Write(rayaByte, 0, rayaByte.Length);
+                    }
+                    if(c == ' ')
+                    {
+                        Console.WriteLine(" esppacio blanco {0} {1} {2} ", silencioByte.Length, rayaByte.Length, puntoByte.Length);
+                        audioStream.Write(silencioByte, 0, silencioByte.Length);
+                     
+                    }
+                }
+                audioStream.Close();
+            }
+
+            
+
+            
         }
 
         private static byte[] LectorCompletoDeBinario(Stream stream)
